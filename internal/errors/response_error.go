@@ -21,3 +21,8 @@ func New(errCode, errMsg string) error {
 		ErrorMessage: errMsg,
 	}
 }
+
+// InternalServerError returns a ResponseError for internal server errors.
+func InternalServerError() error {
+	return New(InternalServerErrorCode, InternalServerErrorMsg)
+}

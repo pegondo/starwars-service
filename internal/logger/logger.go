@@ -1,7 +1,6 @@
 package logger
 
 import (
-	"errors"
 	"starwars/service/internal/request"
 
 	"github.com/gin-gonic/gin"
@@ -24,17 +23,19 @@ func Middleware() gin.HandlerFunc {
 	}
 }
 
-// Logger returns the logger attached to the given request context.
-func Logger(c *gin.Context) (l zerolog.Logger, err error) {
+// Logger returns the logger attached to the given request context. If there is
+// no log in the request context, Logger logs an error and returns the default
+// one.
+func Logger(c *gin.Context) (l zerolog.Logger) {
 	logger, exists := c.Get(loggerKey)
 	if !exists {
-		return l, errors.New("error while retrieving the logger :: no logger in the request")
+		log.Error().Msg("no logger in the request")
+		return l
 	}
 
 	l, ok := logger.(zerolog.Logger)
 	if !ok {
-		return l, errors.New("error while retrieving the logger :: invalid logger instance type")
+		log.Error().Msg("invalid logger instance type")
 	}
-
-	return l, nil
+	return l
 }

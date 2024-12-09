@@ -1,6 +1,8 @@
 package server
 
 import (
+	"starwars/service/internal/errors"
+	"starwars/service/internal/handler"
 	"starwars/service/internal/logger"
 	"starwars/service/internal/request"
 
@@ -15,7 +17,9 @@ var router *gin.Engine
 func Init() {
 	router = gin.Default()
 
-	router.Use(request.RequestIdMiddleware(), logger.Middleware())
+	router.Use(errors.RecoveryMiddleware(), request.RequestIdMiddleware(), logger.Middleware())
+
+	router.GET("/people", handler.RetrievePeople)
 
 	zerolog.TimeFieldFormat = zerolog.TimeFormatUnix
 }
