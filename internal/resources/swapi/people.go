@@ -79,12 +79,16 @@ type PersonResponse struct {
 
 // retrievePeople is a recursive solution to request the people SWAPI endpoint
 // given a variable page size.
-func retrievePeople(people PersonResponse, remainingPeople, pageNumber, offset int) (peopleResp PersonResponse, err error) {
+func retrievePeople(people PersonResponse, search string, remainingPeople, pageNumber, offset int) (peopleResp PersonResponse, err error) {
 	if remainingPeople <= 0 {
 		return people, nil
 	}
 
-	peopleResp, err = request(fmt.Sprintf("%s/%s?page=%d", swapiBaseUrl, peopleResource, pageNumber))
+	url := fmt.Sprintf("%s/%s?page=%d", swapiBaseUrl, peopleResource, pageNumber)
+	if search != "" {
+		url = fmt.Sprintf("%s&search=%s", url, search)
+	}
+	peopleResp, err = request(url)
 	if err != nil {
 		return peopleResp, fmt.Errorf("error while requesting the people endpoint :: %v", err)
 	}
@@ -102,17 +106,18 @@ func retrievePeople(people PersonResponse, remainingPeople, pageNumber, offset i
 	maxIdx := int(math.Min(swapiPageSize, float64(minIdx+remainingPeople)))
 	peopleResp.Results = append(people.Results, peopleResp.Results[minIdx:maxIdx]...)
 	numElementsAdded := maxIdx - minIdx
-	return retrievePeople(peopleResp, remainingPeople-numElementsAdded, pageNumber+1, 0)
+	return retrievePeople(peopleResp, search, remainingPeople-numElementsAdded, pageNumber+1, 0)
 }
 
 // RetrievePeople requests the SWAPI for people. The SWAPI doesn't support
 // pagination with variable page sizes, but this function does the maths and
 // requests the endpoint various times if needed to return the data for the
-// given page and page size.
-func RetrievePeople(page, pageSize int) (peopleResp PersonResponse, err error) {
+// given page and page size. If search is not "", the people returned will
+// contain the value of search in their name.
+func RetrievePeople(page, pageSize int, search string) (peopleResp PersonResponse, err error) {
 	numAlreadyRequestedPeople := (page - 1) * pageSize
 	initialPage := int(numAlreadyRequestedPeople/swapiPageSize) + 1
 	initialPageOffset := numAlreadyRequestedPeople % swapiPageSize
 
-	return retrievePeople(PersonResponse{}, pageSize, initialPage, initialPageOffset)
+	return retrievePeople(PersonResponse{}, search, pageSize, initialPage, initialPageOffset)
 }

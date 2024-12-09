@@ -6,6 +6,7 @@ import (
 	"starwars/service/internal/logger"
 	"starwars/service/internal/resources/swapi"
 	"strconv"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 )
@@ -21,6 +22,9 @@ const (
 	defaultPageSize = 15
 	// pageSizeParamKey is the key to get the page size query parameter.
 	pageSizeParamKey = "pageSize"
+
+	// searchParamKey is the key to get the search query parameter.
+	searchParamKey = "search"
 )
 
 // PeopleResponse represents the response the retrieve people handler returns.
@@ -58,7 +62,10 @@ func RetrievePeople(c *gin.Context) {
 		return
 	}
 
-	people, err := swapi.RetrievePeople(page, pageSize)
+	search := c.DefaultQuery(searchParamKey, "")
+	search = strings.ToLower(search)
+
+	people, err := swapi.RetrievePeople(page, pageSize, search)
 	if err != nil {
 		// If there is an issue while requesting for the people, return a 500.
 		l.Error().Msg(err.Error())
