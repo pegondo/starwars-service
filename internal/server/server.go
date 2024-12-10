@@ -19,7 +19,8 @@ func Init() {
 
 	router.Use(errors.RecoveryMiddleware(), request.RequestIdMiddleware(), logger.Middleware())
 
-	router.GET("/people", handler.RetrievePeople)
+	router.GET(handler.PeopleEndpoint, handler.RetrievePeople)
+	router.GET(handler.PlanetEndpoint, handler.RetrievePlanets)
 
 	zerolog.TimeFieldFormat = zerolog.TimeFormatUnix
 }

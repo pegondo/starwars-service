@@ -10,12 +10,12 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// retrievePeopleHandlerName is the name of the retrieve people handler.
-const retrievePeopleHandlerName = "retrieve people"
+// retrievePlanetsHandlerName is the name of the retrieve planets handler.
+const retrievePlanetsHandlerName = "retrive planets"
 
-func RetrievePeople(c *gin.Context) {
+func RetrievePlanets(c *gin.Context) {
 	l := logger.Logger(c)
-	l.Info().Msgf("received request to the %s endpoint", retrievePeopleHandlerName)
+	l.Info().Msgf("received request to the %s endpoint", retrievePlanetsHandlerName)
 
 	page, err := getNumericParam(c, pageParamKey, 1)
 	if err != nil {
@@ -38,9 +38,9 @@ func RetrievePeople(c *gin.Context) {
 	search := c.DefaultQuery(searchParamKey, "")
 	search = strings.ToLower(search)
 
-	people, err := swapi.RetrievePeople(page, pageSize, search)
+	planets, err := swapi.RetrievePlanets(page, pageSize, search)
 	if err != nil {
-		// If there is an issue while requesting for the people, return a 500.
+		// If there is an issue while requesting for the planets, return a 500.
 		l.Error().Msg(err.Error())
 		err = errors.New(errors.InternalServerErrorCode, errors.InternalServerErrorMsg)
 		c.AbortWithError(http.StatusInternalServerError, err)
@@ -48,10 +48,10 @@ func RetrievePeople(c *gin.Context) {
 	}
 
 	statusCode := http.StatusOK
-	if areAllResources := people.Count == len(people.Results); !areAllResources {
+	if areAllResources := planets.Count == len(planets.Results); !areAllResources {
 		statusCode = http.StatusPartialContent
 	}
-	c.JSON(statusCode, Response[swapi.Person]{
-		Data: people.Results,
+	c.JSON(statusCode, Response[swapi.Planet]{
+		Data: planets.Results,
 	})
 }

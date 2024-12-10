@@ -18,7 +18,7 @@ const (
 
 // Resource represents a SWAPI resource the API serves.
 type Resource interface {
-	Person
+	Person | Planet
 }
 
 // SwapiResponse represents the SWAPI response for a resource T.
