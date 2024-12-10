@@ -2,6 +2,7 @@ package swapi
 
 import (
 	"fmt"
+	"math"
 	"sort"
 	"starwars/service/internal/utils"
 	"time"
@@ -96,13 +97,7 @@ func retrieveAllPeopleAndSort(
 	}
 
 	minIdx := (page - 1) * pageSize
-	maxIdx := page * pageSize
-	if maxIdx > len(people.Results) {
-		return SwapiResponse[Person]{
-			Count:   people.Count,
-			Results: []Person{},
-		}, nil
-	}
+	maxIdx := int(math.Min(float64(page*pageSize), float64(len(people.Results))))
 	people.Results = people.Results[minIdx:maxIdx]
 
 	return people, nil

@@ -159,7 +159,7 @@ func retrieveAll[T Resource](
 ) {
 	url := fmt.Sprintf("%s/%s", swapiBaseUrl, endpoint)
 	if search != "" {
-		url = fmt.Sprintf("%s&search=%s", url, search)
+		url = fmt.Sprintf("%s?search=%s", url, search)
 	}
 
 	swapiResp, err = request[T](url)
