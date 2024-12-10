@@ -38,7 +38,9 @@ func RetrievePlanets(c *gin.Context) {
 	search := c.DefaultQuery(searchParamKey, "")
 	search = strings.ToLower(search)
 
-	planets, err := swapi.RetrievePlanets(page, pageSize, search)
+	sortCriteria := swapi.GetSortCriteria(c)
+
+	planets, err := swapi.RetrievePlanets(page, pageSize, search, sortCriteria)
 	if err != nil {
 		// If there is an issue while requesting for the planets, return a 500.
 		l.Error().Msg(err.Error())

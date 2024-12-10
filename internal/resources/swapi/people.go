@@ -97,6 +97,12 @@ func retrieveAllPeopleAndSort(
 	}
 
 	minIdx := (page - 1) * pageSize
+	if minIdx > len(people.Results) {
+		return SwapiResponse[Person]{
+			Count:   people.Count,
+			Results: []Person{},
+		}, nil
+	}
 	maxIdx := int(math.Min(float64(page*pageSize), float64(len(people.Results))))
 	people.Results = people.Results[minIdx:maxIdx]
 

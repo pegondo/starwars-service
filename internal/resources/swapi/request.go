@@ -19,9 +19,9 @@ const (
 	swapiPageSize = 10
 
 	// sortFieldParamKey is the request parameter for the sort field.
-	sortFieldParamKey = "sort_field"
+	sortFieldParamKey = "sortField"
 	// sortFieldParamKey is the request parameter for the sort order.
-	sortOrderParamKey = "sort_order"
+	sortOrderParamKey = "sortOrder"
 )
 
 // Resource represents a SWAPI resource the API serves.
