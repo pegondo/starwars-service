@@ -1,6 +1,9 @@
 package swapi
 
 import (
+	"fmt"
+	"sort"
+	"starwars/service/internal/utils"
 	"time"
 )
 
@@ -54,12 +57,61 @@ type Person struct {
 	Edited time.Time `json:"edited"`
 }
 
-// RetrievePeople requests the SWAPI for people. The SWAPI doesn't support
-// pagination with variable page sizes, but this function does the maths and
-// requests the endpoint various times if needed to return the data for the
-// given page and page size. If search is not "", the people returned will
-// contain the value of search in their name.
-func RetrievePeople(
+// retrieveAllPeopleAndSort retrieves all the people in SWAPI and sorts them
+// using the given criteria to return the information paginated with the given
+// page number and size. If search isn't "", the names of the people in
+// peopleResp.Result will contain the value of search.
+func retrieveAllPeopleAndSort(
+	page,
+	pageSize int,
+	search string,
+	sortCriteria SortCriteria,
+) (
+	peopleResp SwapiResponse[Person],
+	err error,
+) {
+	people, err := retrieveAll[Person](peopleEndpoint, search)
+	if err != nil {
+		return peopleResp, err
+	}
+
+	var lessFn func(i, j int) bool
+	switch sortCriteria.Field {
+	case NameSortField:
+		lessFn = func(i, j int) bool {
+			return people.Results[i].Name < people.Results[j].Name
+		}
+
+	case CreatedSortField:
+		lessFn = func(i, j int) bool {
+			return people.Results[i].Created.Before(people.Results[j].Created)
+		}
+	default:
+		return peopleResp, fmt.Errorf("invalid sort field '%s'", sortCriteria.Field)
+	}
+	sort.Slice(people.Results, lessFn)
+
+	if sortCriteria.Order == DescendingOrder {
+		utils.ReverseSlice(people.Results)
+	}
+
+	minIdx := (page - 1) * pageSize
+	maxIdx := page * pageSize
+	if maxIdx > len(people.Results) {
+		return SwapiResponse[Person]{
+			Count:   people.Count,
+			Results: []Person{},
+		}, nil
+	}
+	people.Results = people.Results[minIdx:maxIdx]
+
+	return people, nil
+}
+
+// retrievePeoplePage retrieves the people from the SWAPI with the given page
+// number and size. If search isn't "", all the elements of peopleResp.Results
+// will contain the value of search.
+func retrievePeoplePage(
 	page,
 	pageSize int,
 	search string,
@@ -72,4 +124,24 @@ func RetrievePeople(
 	initialPageOffset := numAlreadyRequestedPeople % swapiPageSize
 
 	return retrievePage(SwapiResponse[Person]{}, peopleEndpoint, search, pageSize, initialPage, initialPageOffset)
+}
+
+// RetrievePeople requests the SWAPI for people. The SWAPI doesn't support
+// pagination with variable page sizes, but this function does the maths and
+// requests the endpoint various times if needed to return the data for the
+// given page and page size. If search is not "", the people returned will
+// contain the value of search in their name.
+func RetrievePeople(
+	page,
+	pageSize int,
+	search string,
+	sortCriteria *SortCriteria,
+) (
+	peopleResp SwapiResponse[Person],
+	err error,
+) {
+	if sortCriteria != nil {
+		return retrieveAllPeopleAndSort(page, pageSize, search, *sortCriteria)
+	}
+	return retrievePeoplePage(page, pageSize, search)
 }

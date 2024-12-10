@@ -38,7 +38,9 @@ func RetrievePeople(c *gin.Context) {
 	search := c.DefaultQuery(searchParamKey, "")
 	search = strings.ToLower(search)
 
-	people, err := swapi.RetrievePeople(page, pageSize, search)
+	sortCriteria := swapi.GetSortCriteria(c)
+
+	people, err := swapi.RetrievePeople(page, pageSize, search, sortCriteria)
 	if err != nil {
 		// If there is an issue while requesting for the people, return a 500.
 		l.Error().Msg(err.Error())
