@@ -1,10 +1,6 @@
 package swapi
 
 import (
-	"fmt"
-	"math"
-	"sort"
-	"starwars/service/internal/utils"
 	"time"
 )
 
@@ -58,73 +54,14 @@ type Person struct {
 	Edited time.Time `json:"edited"`
 }
 
-// retrieveAllPeopleAndSort retrieves all the people in SWAPI and sorts them
-// using the given criteria to return the information paginated with the given
-// page number and size. If search isn't "", the names of the people in
-// peopleResp.Result will contain the value of search.
-func retrieveAllPeopleAndSort(
-	page,
-	pageSize int,
-	search string,
-	sortCriteria SortCriteria,
-) (
-	peopleResp SwapiResponse[Person],
-	err error,
-) {
-	people, err := retrieveAll[Person](peopleEndpoint, search)
-	if err != nil {
-		return peopleResp, err
-	}
-
-	var lessFn func(i, j int) bool
-	switch sortCriteria.Field {
-	case NameSortField:
-		lessFn = func(i, j int) bool {
-			return people.Results[i].Name < people.Results[j].Name
-		}
-
-	case CreatedSortField:
-		lessFn = func(i, j int) bool {
-			return people.Results[i].Created.Before(people.Results[j].Created)
-		}
-	default:
-		return peopleResp, fmt.Errorf("invalid sort field '%s'", sortCriteria.Field)
-	}
-	sort.Slice(people.Results, lessFn)
-
-	if sortCriteria.Order == DescendingOrder {
-		utils.ReverseSlice(people.Results)
-	}
-
-	minIdx := (page - 1) * pageSize
-	if minIdx > len(people.Results) {
-		return SwapiResponse[Person]{
-			Count:   people.Count,
-			Results: []Person{},
-		}, nil
-	}
-	maxIdx := int(math.Min(float64(page*pageSize), float64(len(people.Results))))
-	people.Results = people.Results[minIdx:maxIdx]
-
-	return people, nil
+// GetName returns the person name.
+func (p Person) GetName() string {
+	return p.Name
 }
 
-// retrievePeoplePage retrieves the people from the SWAPI with the given page
-// number and size. If search isn't "", all the elements of peopleResp.Results
-// will contain the value of search.
-func retrievePeoplePage(
-	page,
-	pageSize int,
-	search string,
-) (
-	peopleResp SwapiResponse[Person],
-	err error,
-) {
-	numAlreadyRequestedPeople := (page - 1) * pageSize
-	initialPage := int(numAlreadyRequestedPeople/swapiPageSize) + 1
-	initialPageOffset := numAlreadyRequestedPeople % swapiPageSize
-
-	return retrievePage(SwapiResponse[Person]{}, peopleEndpoint, search, pageSize, initialPage, initialPageOffset)
+// GetCreated returns the person's resouce creation time in SWAPI.
+func (p Person) GetCreated() time.Time {
+	return p.Created
 }
 
 // RetrievePeople requests the SWAPI for people. The SWAPI doesn't support
@@ -142,7 +79,7 @@ func RetrievePeople(
 	err error,
 ) {
 	if sortCriteria != nil {
-		return retrieveAllPeopleAndSort(page, pageSize, search, *sortCriteria)
+		return retrieveAllAndSort[Person](peopleEndpoint, page, pageSize, search, *sortCriteria)
 	}
-	return retrievePeoplePage(page, pageSize, search)
+	return retrievePage[Person](peopleEndpoint, page, pageSize, search)
 }

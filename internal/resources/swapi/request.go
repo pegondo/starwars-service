@@ -6,7 +6,10 @@ import (
 	"io"
 	"math"
 	"net/http"
+	"sort"
+	"starwars/service/internal/utils"
 	"strings"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -27,6 +30,8 @@ const (
 // Resource represents a SWAPI resource the API serves.
 type Resource interface {
 	Person | Planet
+	GetName() string
+	GetCreated() time.Time
 }
 
 // SwapiResponse represents the SWAPI response for a resource T.
@@ -105,9 +110,9 @@ func request[T Resource](url string) (response SwapiResponse[T], err error) {
 	return response, err
 }
 
-// retrievePage is a recursive solution to request SWAPI given a variable page
-// size.
-func retrievePage[T Resource](
+// retrievePageRec is a recursive solution to request SWAPI given a variable
+// page size.
+func retrievePageRec[T Resource](
 	resource SwapiResponse[T],
 	endpoint,
 	search string,
@@ -144,7 +149,26 @@ func retrievePage[T Resource](
 	maxIdx := int(math.Min(swapiPageSize, float64(minIdx+remainingResources)))
 	swapiResp.Results = append(resource.Results, swapiResp.Results[minIdx:maxIdx]...)
 	numElementsAdded := maxIdx - minIdx
-	return retrievePage(swapiResp, endpoint, search, remainingResources-numElementsAdded, pageNumber+1, 0)
+	return retrievePageRec(swapiResp, endpoint, search, remainingResources-numElementsAdded, pageNumber+1, 0)
+}
+
+// retrievePage retrieves the resources from the SWAPI with the given page
+// number and size. If search isn't "", all the elements of resp.Results will
+// contain the value of search.
+func retrievePage[T Resource](
+	endpoint string,
+	page,
+	pageSize int,
+	search string,
+) (
+	resp SwapiResponse[T],
+	err error,
+) {
+	numAlreadyRequestedResources := (page - 1) * pageSize
+	initialPage := int(numAlreadyRequestedResources/swapiPageSize) + 1
+	initialPageOffset := numAlreadyRequestedResources % swapiPageSize
+
+	return retrievePageRec(SwapiResponse[T]{}, endpoint, search, pageSize, initialPage, initialPageOffset)
 }
 
 // retrieveAll returns all the resources in the given SWAPI endpoint. If search
@@ -184,4 +208,56 @@ func retrieveAll[T Resource](
 	}
 
 	return swapiResp, err
+}
+
+// retrieveAllAndSort retrieves all the resources in SWAPI and sorts them using
+// the given criteria to return the information paginated with the given page
+// number and size. If search isn't "", the names of the resource in resp.Result
+// will contain the value of search.
+func retrieveAllAndSort[T Resource](
+	endpoint string,
+	page,
+	pageSize int,
+	search string,
+	sortCriteria SortCriteria,
+) (
+	resp SwapiResponse[T],
+	err error,
+) {
+	resources, err := retrieveAll[T](endpoint, search)
+	if err != nil {
+		return resp, err
+	}
+
+	var lessFn func(i, j int) bool
+	switch sortCriteria.Field {
+	case NameSortField:
+		lessFn = func(i, j int) bool {
+			return resources.Results[i].GetName() < resources.Results[j].GetName()
+		}
+
+	case CreatedSortField:
+		lessFn = func(i, j int) bool {
+			return resources.Results[i].GetCreated().Before(resources.Results[j].GetCreated())
+		}
+	default:
+		return resp, fmt.Errorf("invalid sort field '%s'", sortCriteria.Field)
+	}
+	sort.Slice(resources.Results, lessFn)
+
+	if sortCriteria.Order == DescendingOrder {
+		utils.ReverseSlice(resources.Results)
+	}
+
+	minIdx := (page - 1) * pageSize
+	if minIdx > len(resources.Results) {
+		return SwapiResponse[T]{
+			Count:   resources.Count,
+			Results: []T{},
+		}, nil
+	}
+	maxIdx := int(math.Min(float64(page*pageSize), float64(len(resources.Results))))
+	resources.Results = resources.Results[minIdx:maxIdx]
+
+	return resources, nil
 }

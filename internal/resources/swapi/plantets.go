@@ -1,10 +1,6 @@
 package swapi
 
 import (
-	"fmt"
-	"math"
-	"sort"
-	"starwars/service/internal/utils"
 	"time"
 )
 
@@ -47,68 +43,14 @@ type Planet struct {
 	Edited time.Time `json:"edited"`
 }
 
-// retrieveAllPlanetsAndSort retrieves all the planets in SWAPI and sorts them
-// using the given criteria to return the information paginated with the given
-// page number and size. If search isn't "", the names of the planets in
-// planetsResp.Result will contain the value of search.
-func retrieveAllPlanetsAndSort(
-	page,
-	pageSize int,
-	search string,
-	sortCriteria SortCriteria,
-) (
-	planetsResp SwapiResponse[Planet],
-	err error,
-) {
-	planets, err := retrieveAll[Planet](planetsEndpoint, search)
-	if err != nil {
-		return planetsResp, err
-	}
-
-	var lessFn func(i, j int) bool
-	switch sortCriteria.Field {
-	case NameSortField:
-		lessFn = func(i, j int) bool {
-			return planets.Results[i].Name < planets.Results[j].Name
-		}
-
-	case CreatedSortField:
-		lessFn = func(i, j int) bool {
-			return planets.Results[i].Created.Before(planets.Results[j].Created)
-		}
-	default:
-		return planetsResp, fmt.Errorf("invalid sort field '%s'", sortCriteria.Field)
-	}
-	sort.Slice(planets.Results, lessFn)
-
-	if sortCriteria.Order == DescendingOrder {
-		utils.ReverseSlice(planets.Results)
-	}
-
-	minIdx := (page - 1) * pageSize
-	// TODO: Fix here as well.
-	maxIdx := int(math.Min(float64(page*pageSize), float64(len(planets.Results))))
-	planets.Results = planets.Results[minIdx:maxIdx]
-
-	return planets, nil
+// GetName returns the planet name.
+func (p Planet) GetName() string {
+	return p.Name
 }
 
-// retrievePlanetsPage retrieves the planets from the SWAPI with the given page
-// number and size. If search isn't "", all the elements of planetsResp.Results
-// will contain the value of search.
-func retrievePlanetsPage(
-	page,
-	pageSize int,
-	search string,
-) (
-	planetsResp SwapiResponse[Planet],
-	err error,
-) {
-	numAlreadyRequestedPlanets := (page - 1) * pageSize
-	initialPage := int(numAlreadyRequestedPlanets/swapiPageSize) + 1
-	initialPageOffset := numAlreadyRequestedPlanets % swapiPageSize
-
-	return retrievePage(SwapiResponse[Planet]{}, planetsEndpoint, search, pageSize, initialPage, initialPageOffset)
+// GetCreated returns the planet's resouce creation time in SWAPI.
+func (p Planet) GetCreated() time.Time {
+	return p.Created
 }
 
 // RetrievePlanets requests the SWAPI for planets. The SWAPI doesn't support
@@ -126,7 +68,7 @@ func RetrievePlanets(
 	err error,
 ) {
 	if sortCriteria != nil {
-		return retrieveAllPlanetsAndSort(page, pageSize, search, *sortCriteria)
+		return retrieveAllAndSort[Planet](planetsEndpoint, page, pageSize, search, *sortCriteria)
 	}
-	return retrievePlanetsPage(page, pageSize, search)
+	return retrievePage[Planet](planetsEndpoint, page, pageSize, search)
 }
