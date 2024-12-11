@@ -2,6 +2,7 @@ package swapi
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"math"
@@ -26,6 +27,10 @@ const (
 	// sortFieldParamKey is the request parameter for the sort order.
 	sortOrderParamKey = "sortOrder"
 )
+
+// ErrInvalidSortField is the error returned when the sort field in SortCriteria
+// is invalid.
+var ErrInvalidSortField = errors.New("invalid sort field")
 
 // Resource represents a SWAPI resource the API serves.
 type Resource interface {
@@ -72,6 +77,18 @@ type SortCriteria struct {
 	Order SortOrder
 }
 
+// indexes represent a pair of min and max indexes.
+type indexes struct {
+	min int
+	max int
+}
+
+// page represents the information needed to correctly fetch a SWAPI page.
+type page struct {
+	number int
+	offset int
+}
+
 // GetSortCriteria returns the sorting criteria in the parameters of the given
 // request context. If the request doesn't contain information about the
 // sorting, GetSortCriteria returns nil.
@@ -110,6 +127,29 @@ func request[T Resource](url string) (response SwapiResponse[T], err error) {
 	return response, err
 }
 
+// buildUrl builds the SWAPI URL to request with the given endpoint, page number
+// and search condition.
+func buildUrl(endpoint string, pageNumber int, search string) string {
+	url := fmt.Sprintf("%s/%s?page=%d", swapiBaseUrl, endpoint, pageNumber)
+	if search != "" {
+		url = fmt.Sprintf("%s&search=%s", url, search)
+	}
+	return url
+}
+
+// computePageIdxs returns the min and max page indexes needed to correctly
+// request for the page with the given offset and remaining resources.
+// computePageIdxs will misbehave if a negative offset or page size is provided,
+// or if the offset is bigger than the page size.
+func computePageIdxs(offset int, remainingResources, apiPageSize int) indexes {
+	min := offset
+	max := int(math.Min(float64(apiPageSize), float64(min+remainingResources)))
+	return indexes{
+		min: min,
+		max: max,
+	}
+}
+
 // retrievePageRec is a recursive solution to request SWAPI given a variable
 // page size.
 func retrievePageRec[T Resource](
@@ -127,10 +167,7 @@ func retrievePageRec[T Resource](
 		return resource, nil
 	}
 
-	url := fmt.Sprintf("%s/%s?page=%d", swapiBaseUrl, endpoint, pageNumber)
-	if search != "" {
-		url = fmt.Sprintf("%s&search=%s", url, search)
-	}
+	url := buildUrl(endpoint, pageNumber, search)
 	swapiResp, err = request[T](url)
 	if err != nil {
 		return swapiResp, fmt.Errorf("error while requesting the %s endpoint :: %v", endpoint, err)
@@ -145,11 +182,25 @@ func retrievePageRec[T Resource](
 
 	remainingResources = int(math.Min(float64(remainingResources), float64(swapiResp.Count)))
 
-	minIdx := offset
-	maxIdx := int(math.Min(swapiPageSize, float64(minIdx+remainingResources)))
-	swapiResp.Results = append(resource.Results, swapiResp.Results[minIdx:maxIdx]...)
-	numElementsAdded := maxIdx - minIdx
+	idxs := computePageIdxs(offset, remainingResources, swapiPageSize)
+	numElementsAdded := idxs.max - idxs.min
+	swapiResp.Results = append(resource.Results, swapiResp.Results[idxs.min:idxs.max]...)
+
 	return retrievePageRec(swapiResp, endpoint, search, remainingResources-numElementsAdded, pageNumber+1, 0)
+}
+
+// computeInitialPage computes the number of the page to request and its offset
+// based on the given page number, requested page size and API page size. If the
+// page number, page size or API page size are lower than one,
+// computeInitialPage may misbehave.
+func computeInitialPage(pageNumber, pageSize, apiPageSize int) page {
+	numAlreadyRequestedResources := (pageNumber - 1) * pageSize
+	initial := int(numAlreadyRequestedResources/apiPageSize) + 1
+	offset := numAlreadyRequestedResources % apiPageSize
+	return page{
+		number: initial,
+		offset: offset,
+	}
 }
 
 // retrievePage retrieves the resources from the SWAPI with the given page
@@ -157,18 +208,15 @@ func retrievePageRec[T Resource](
 // contain the value of search.
 func retrievePage[T Resource](
 	endpoint string,
-	page,
+	pageNumber,
 	pageSize int,
 	search string,
 ) (
 	resp SwapiResponse[T],
 	err error,
 ) {
-	numAlreadyRequestedResources := (page - 1) * pageSize
-	initialPage := int(numAlreadyRequestedResources/swapiPageSize) + 1
-	initialPageOffset := numAlreadyRequestedResources % swapiPageSize
-
-	return retrievePageRec(SwapiResponse[T]{}, endpoint, search, pageSize, initialPage, initialPageOffset)
+	page := computeInitialPage(pageNumber, pageSize, swapiPageSize)
+	return retrievePageRec(SwapiResponse[T]{}, endpoint, search, pageSize, page.number, page.offset)
 }
 
 // retrieveAll returns all the resources in the given SWAPI endpoint. If search
@@ -181,10 +229,7 @@ func retrieveAll[T Resource](
 	swapiResp SwapiResponse[T],
 	err error,
 ) {
-	url := fmt.Sprintf("%s/%s", swapiBaseUrl, endpoint)
-	if search != "" {
-		url = fmt.Sprintf("%s?search=%s", url, search)
-	}
+	url := buildUrl(endpoint, 1, search)
 
 	swapiResp, err = request[T](url)
 	if err != nil {
@@ -210,6 +255,31 @@ func retrieveAll[T Resource](
 	return swapiResp, err
 }
 
+// sortResults sorts the given slice of results based on the given sort
+// criteria.
+func sortResults[T Resource](results []T, sortCriteria SortCriteria) error {
+	var lessFn func(i, j int) bool
+	switch sortCriteria.Field {
+	case NameSortField:
+		lessFn = func(i, j int) bool {
+			return results[i].GetName() < results[j].GetName()
+		}
+
+	case CreatedSortField:
+		lessFn = func(i, j int) bool {
+			return results[i].GetCreated().Before(results[j].GetCreated())
+		}
+	default:
+		return ErrInvalidSortField
+	}
+	sort.Slice(results, lessFn)
+
+	if sortCriteria.Order == DescendingOrder {
+		utils.ReverseSlice(results)
+	}
+	return nil
+}
+
 // retrieveAllAndSort retrieves all the resources in SWAPI and sorts them using
 // the given criteria to return the information paginated with the given page
 // number and size. If search isn't "", the names of the resource in resp.Result
@@ -229,24 +299,8 @@ func retrieveAllAndSort[T Resource](
 		return resp, err
 	}
 
-	var lessFn func(i, j int) bool
-	switch sortCriteria.Field {
-	case NameSortField:
-		lessFn = func(i, j int) bool {
-			return resources.Results[i].GetName() < resources.Results[j].GetName()
-		}
-
-	case CreatedSortField:
-		lessFn = func(i, j int) bool {
-			return resources.Results[i].GetCreated().Before(resources.Results[j].GetCreated())
-		}
-	default:
-		return resp, fmt.Errorf("invalid sort field '%s'", sortCriteria.Field)
-	}
-	sort.Slice(resources.Results, lessFn)
-
-	if sortCriteria.Order == DescendingOrder {
-		utils.ReverseSlice(resources.Results)
+	if err = sortResults(resources.Results, sortCriteria); err != nil {
+		return resp, err
 	}
 
 	minIdx := (page - 1) * pageSize
