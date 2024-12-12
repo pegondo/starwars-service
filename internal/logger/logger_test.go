@@ -4,8 +4,9 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
-	"starwars/service/internal/logger"
 	"testing"
+
+	"github.com/pegondo/starwars/service/internal/logger"
 
 	"github.com/gin-gonic/gin"
 	"github.com/rs/zerolog"

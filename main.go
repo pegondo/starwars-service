@@ -1,6 +1,6 @@
 package main
 
-import "starwars/service/internal/server"
+import "github.com/pegondo/starwars/service/internal/server"
 
 func main() {
 	server.Init()

@@ -2,10 +2,11 @@ package handler
 
 import (
 	"net/http"
-	"starwars/service/internal/errors"
-	"starwars/service/internal/logger"
-	"starwars/service/internal/resources/swapi"
 	"strings"
+
+	"github.com/pegondo/starwars/service/internal/errors"
+	"github.com/pegondo/starwars/service/internal/logger"
+	"github.com/pegondo/starwars/service/internal/resources/swapi"
 
 	"github.com/gin-gonic/gin"
 )

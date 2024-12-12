@@ -5,8 +5,9 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httptest"
-	"starwars/service/internal/errors"
 	"testing"
+
+	"github.com/pegondo/starwars/service/internal/errors"
 
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/require"

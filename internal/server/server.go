@@ -1,10 +1,10 @@
 package server
 
 import (
-	"starwars/service/internal/errors"
-	"starwars/service/internal/handler"
-	"starwars/service/internal/logger"
-	"starwars/service/internal/request"
+	"github.com/pegondo/starwars/service/internal/errors"
+	"github.com/pegondo/starwars/service/internal/handler"
+	"github.com/pegondo/starwars/service/internal/logger"
+	"github.com/pegondo/starwars/service/internal/request"
 
 	"github.com/gin-gonic/gin"
 	"github.com/rs/zerolog"

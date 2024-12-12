@@ -1,8 +1,9 @@
 package handler
 
 import (
-	"starwars/service/internal/resources/swapi"
 	"strconv"
+
+	"github.com/pegondo/starwars/service/internal/resources/swapi"
 
 	"github.com/gin-gonic/gin"
 )

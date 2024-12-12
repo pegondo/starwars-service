@@ -3,8 +3,9 @@ package request_test
 import (
 	"net/http"
 	"net/http/httptest"
-	"starwars/service/internal/request"
 	"testing"
+
+	"github.com/pegondo/starwars/service/internal/request"
 
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/require"

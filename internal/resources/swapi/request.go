@@ -8,9 +8,10 @@ import (
 	"math"
 	"net/http"
 	"sort"
-	"starwars/service/internal/utils"
 	"strings"
 	"time"
+
+	"github.com/pegondo/starwars/service/internal/utils"
 
 	"github.com/gin-gonic/gin"
 )
@@ -255,9 +256,9 @@ func retrieveAll[T Resource](
 	return swapiResp, err
 }
 
-// sortResults sorts the given slice of results based on the given sort
+// SortResults sorts the given slice of results based on the given sort
 // criteria.
-func sortResults[T Resource](results []T, sortCriteria SortCriteria) error {
+func SortResults[T Resource](results []T, sortCriteria SortCriteria) error {
 	var lessFn func(i, j int) bool
 	switch sortCriteria.Field {
 	case NameSortField:
@@ -299,7 +300,7 @@ func retrieveAllAndSort[T Resource](
 		return resp, err
 	}
 
-	if err = sortResults(resources.Results, sortCriteria); err != nil {
+	if err = SortResults(resources.Results, sortCriteria); err != nil {
 		return resp, err
 	}
 

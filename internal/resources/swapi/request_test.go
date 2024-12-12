@@ -301,7 +301,7 @@ func TestSortResults(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			err := sortResults(tc.results, tc.sortCriteria)
+			err := SortResults(tc.results, tc.sortCriteria)
 			require.Equal(t, tc.expectedResults, tc.results)
 			require.ErrorIs(t, tc.err, err)
 		})
