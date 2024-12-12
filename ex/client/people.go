@@ -28,19 +28,21 @@ func (c *Client) RetrievePeople(opts requestOpts) (peopleResp Response[swapi.Per
 		return peopleResp, err
 	}
 
-	// If the response is a success response, return it.
-	var apiResp handler.Response[swapi.Person]
-	if err = json.Unmarshal(bodyBytes, &apiResp); err == nil {
-		return Response[swapi.Person]{
-			StatusCode: resp.StatusCode,
-			Response:   apiResp,
-		}, nil
-	}
-
-	// If the response is an error response, return it as an error.
-	var errResp *errors.ResponseError
-	if err = json.Unmarshal(bodyBytes, &errResp); err != nil {
-		return peopleResp, errResp
+	if isStatusOk(resp.StatusCode) {
+		// If the response is a success response, return it.
+		var apiResp handler.Response[swapi.Person]
+		if err = json.Unmarshal(bodyBytes, &apiResp); err == nil {
+			return Response[swapi.Person]{
+				StatusCode: resp.StatusCode,
+				Response:   apiResp,
+			}, nil
+		}
+	} else {
+		// If the response is an error response, return it as an error.
+		var errResp errors.ResponseError
+		if err = json.Unmarshal(bodyBytes, &errResp); err == nil {
+			return peopleResp, &errResp
+		}
 	}
 
 	return peopleResp, ErrInvalidResponseFormat

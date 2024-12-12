@@ -9,4 +9,7 @@ const (
 
 	InvalidPageSizeErrorCode = "INVALID_PAGE_SIZE"
 	InvalidPageSizeErrorMsg  = "The page size must be a number."
+
+	InvalidSortCriteriaErrorCode = "INVALID_SORT_CRITERIA"
+	InvalidSortCriteriaErrorMsg  = "The sort criteria is invalid."
 )

@@ -2,6 +2,8 @@ package swapi
 
 import (
 	"time"
+
+	internalRequest "github.com/pegondo/starwars/service/internal/request"
 )
 
 // peopleEndpoint is the endpoint to request for people in SWAPI.
@@ -67,19 +69,17 @@ func (p Person) GetCreated() time.Time {
 // RetrievePeople requests the SWAPI for people. The SWAPI doesn't support
 // pagination with variable page sizes, but this function does the maths and
 // requests the endpoint various times if needed to return the data for the
-// given page and page size. If search is not "", the people returned will
-// contain the value of search in their name.
+// given page and page size. If params.Search is not "", the people returned
+// will contain the value of search in their name. If params.SortCriteria isn't
+// nil, the people will be ordered with the defined criteria.
 func RetrievePeople(
-	page,
-	pageSize int,
-	search string,
-	sortCriteria *SortCriteria,
+	params internalRequest.RequestParams,
 ) (
 	peopleResp SwapiResponse[Person],
 	err error,
 ) {
-	if sortCriteria != nil {
-		return retrieveAllAndSort[Person](peopleEndpoint, page, pageSize, search, *sortCriteria)
+	if params.SortCriteria != nil {
+		return retrieveAllAndSort[Person](peopleEndpoint, params)
 	}
-	return retrievePage[Person](peopleEndpoint, page, pageSize, search)
+	return retrievePage[Person](peopleEndpoint, params)
 }

@@ -4,6 +4,7 @@ import (
 	"testing"
 	"time"
 
+	internalRequest "github.com/pegondo/starwars/service/internal/request"
 	"github.com/stretchr/testify/require"
 )
 
@@ -148,22 +149,22 @@ func TestSortResults(t *testing.T) {
 	testCases := []struct {
 		name            string
 		results         []Person
-		sortCriteria    SortCriteria
+		sortCriteria    internalRequest.SortCriteria
 		expectedResults []Person
 		err             error
 	}{
 		{
 			name:            "invalid_sort_criteria",
 			results:         nil,
-			sortCriteria:    SortCriteria{},
+			sortCriteria:    internalRequest.SortCriteria{},
 			expectedResults: nil,
 			err:             ErrInvalidSortField,
 		},
 		{
 			name:    "nil_results",
 			results: nil,
-			sortCriteria: SortCriteria{
-				Field: NameSortField,
+			sortCriteria: internalRequest.SortCriteria{
+				Field: internalRequest.NameSortField,
 			},
 			expectedResults: nil,
 			err:             nil,
@@ -171,8 +172,8 @@ func TestSortResults(t *testing.T) {
 		{
 			name:    "empty_results",
 			results: []Person{},
-			sortCriteria: SortCriteria{
-				Field: NameSortField,
+			sortCriteria: internalRequest.SortCriteria{
+				Field: internalRequest.NameSortField,
 			},
 			expectedResults: []Person{},
 			err:             nil,
@@ -190,9 +191,9 @@ func TestSortResults(t *testing.T) {
 					Name: "2",
 				},
 			},
-			sortCriteria: SortCriteria{
-				Field: NameSortField,
-				Order: AscendingOrder,
+			sortCriteria: internalRequest.SortCriteria{
+				Field: internalRequest.NameSortField,
+				Order: internalRequest.AscendingOrder,
 			},
 			expectedResults: []Person{
 				{
@@ -220,9 +221,9 @@ func TestSortResults(t *testing.T) {
 					Name: "2",
 				},
 			},
-			sortCriteria: SortCriteria{
-				Field: NameSortField,
-				Order: DescendingOrder,
+			sortCriteria: internalRequest.SortCriteria{
+				Field: internalRequest.NameSortField,
+				Order: internalRequest.DescendingOrder,
 			},
 			expectedResults: []Person{
 				{
@@ -250,9 +251,9 @@ func TestSortResults(t *testing.T) {
 					Created: now.Add(time.Hour),
 				},
 			},
-			sortCriteria: SortCriteria{
-				Field: CreatedSortField,
-				Order: AscendingOrder,
+			sortCriteria: internalRequest.SortCriteria{
+				Field: internalRequest.CreatedSortField,
+				Order: internalRequest.AscendingOrder,
 			},
 			expectedResults: []Person{
 				{
@@ -280,9 +281,9 @@ func TestSortResults(t *testing.T) {
 					Created: now.Add(time.Hour),
 				},
 			},
-			sortCriteria: SortCriteria{
-				Field: CreatedSortField,
-				Order: DescendingOrder,
+			sortCriteria: internalRequest.SortCriteria{
+				Field: internalRequest.CreatedSortField,
+				Order: internalRequest.DescendingOrder,
 			},
 			expectedResults: []Person{
 				{

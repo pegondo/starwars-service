@@ -3,8 +3,8 @@ package client
 import (
 	goErrors "errors"
 	"fmt"
+	"net/http"
 	"net/url"
-	"strconv"
 
 	"github.com/pegondo/starwars/service/internal/handler"
 	"github.com/pegondo/starwars/service/internal/resources/swapi"
@@ -37,29 +37,34 @@ type Response[T swapi.Resource] struct {
 // requestOpts represents the options of the request.
 type requestOpts struct {
 	// pageNumber is the number of the pagination page requested.
-	pageNumber int
+	pageNumber string
 	// pageSize is the size of the pagination page.
-	pageSize int
+	pageSize string
 	// search is the search criteria. If "", no search criteria should be
 	// applied.
 	search string
-	// sort is the sort criteria. If nil, no sort criteria should be applied.
-	sort *swapi.SortCriteria
+	// sortField is the field to sort by. If "", no sort criteria should be
+	// applied.
+	sortField string
+	// sortOrder is the order to sort by.
+	sortOrder string
 }
 
 // NewRequestOpts creates and returns a request options structure with the given
 // data.
 func NewRequestOpts(
 	pageNumber,
-	pageSize int,
-	search string,
-	sort *swapi.SortCriteria,
+	pageSize,
+	search,
+	sortField,
+	sortOrder string,
 ) requestOpts {
 	return requestOpts{
 		pageNumber: pageNumber,
 		pageSize:   pageSize,
 		search:     search,
-		sort:       sort,
+		sortField:  sortField,
+		sortOrder:  sortOrder,
 	}
 }
 
@@ -70,24 +75,27 @@ func (c *Client) buildUrl(endpoint string, opts requestOpts) string {
 	reqUrl, _ := url.Parse(fmt.Sprintf("%s/%s", c.addr, endpoint))
 
 	query := url.Values{}
-	if opts.pageNumber != 0 {
-		query.Add("page", strconv.Itoa(opts.pageNumber))
+	if opts.pageNumber != "" {
+		query.Add("page", opts.pageNumber)
 	}
-	if opts.pageSize != 0 {
-		query.Add("pageSize", strconv.Itoa(opts.pageSize))
+	if opts.pageSize != "" {
+		query.Add("pageSize", opts.pageSize)
 	}
 	if opts.search != "" {
 		query.Add("search", opts.search)
 	}
-	if opts.sort != nil {
-		if opts.sort.Field != "" {
-			query.Add("sortField", string(opts.sort.Field))
-		}
-		if opts.sort.Order != "" {
-			query.Add("sortOrder", string(opts.sort.Order))
-		}
+	if opts.sortField != "" {
+		query.Add("sortField", opts.sortField)
+	}
+	if opts.sortOrder != "" {
+		query.Add("sortOrder", opts.sortOrder)
 	}
 	reqUrl.RawQuery = query.Encode()
 
 	return reqUrl.String()
+}
+
+// isStatusOk returns whether the status code corresponds to a 2xx or not.
+func isStatusOk(statusCode int) bool {
+	return http.StatusOK <= statusCode && statusCode < http.StatusMultipleChoices
 }

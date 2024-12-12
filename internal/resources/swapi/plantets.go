@@ -2,6 +2,8 @@ package swapi
 
 import (
 	"time"
+
+	internalRequest "github.com/pegondo/starwars/service/internal/request"
 )
 
 // planetsEndpoint is the endpoint to request for planets in SWAPI.
@@ -56,19 +58,17 @@ func (p Planet) GetCreated() time.Time {
 // RetrievePlanets requests the SWAPI for planets. The SWAPI doesn't support
 // pagination with variable page sizes, but this function does the maths and
 // requests the endpoint various times if needed to return the data for the
-// given page and page size. If search is not "", the planets returned will
-// contain the value of search in their name.
+// given page and page size. If params.Search is not "", the planets returned
+// will contain the value of search in their name. If params.SortCriteria isn't
+// nil, the planets will be ordered with the defined criteria.
 func RetrievePlanets(
-	page,
-	pageSize int,
-	search string,
-	sortCriteria *SortCriteria,
+	params internalRequest.RequestParams,
 ) (
 	planetsResp SwapiResponse[Planet],
 	err error,
 ) {
-	if sortCriteria != nil {
-		return retrieveAllAndSort[Planet](planetsEndpoint, page, pageSize, search, *sortCriteria)
+	if params.SortCriteria != nil {
+		return retrieveAllAndSort[Planet](planetsEndpoint, params)
 	}
-	return retrievePage[Planet](planetsEndpoint, page, pageSize, search)
+	return retrievePage[Planet](planetsEndpoint, params)
 }

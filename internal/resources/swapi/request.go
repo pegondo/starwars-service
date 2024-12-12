@@ -8,12 +8,11 @@ import (
 	"math"
 	"net/http"
 	"sort"
-	"strings"
 	"time"
 
-	"github.com/pegondo/starwars/service/internal/utils"
+	internalRequest "github.com/pegondo/starwars/service/internal/request"
 
-	"github.com/gin-gonic/gin"
+	"github.com/pegondo/starwars/service/internal/utils"
 )
 
 // Source: https://swapi.dev/documentation
@@ -22,11 +21,6 @@ const (
 	swapiBaseUrl = "https://swapi.dev/api"
 	// swapiPageSize is the SWAPI fixed page size.
 	swapiPageSize = 10
-
-	// sortFieldParamKey is the request parameter for the sort field.
-	sortFieldParamKey = "sortField"
-	// sortFieldParamKey is the request parameter for the sort order.
-	sortOrderParamKey = "sortOrder"
 )
 
 // ErrInvalidSortField is the error returned when the sort field in SortCriteria
@@ -50,34 +44,6 @@ type SwapiResponse[T Resource] struct {
 	Results []T `json:"results"`
 }
 
-// SortField represents a valid sort field.
-type SortField string
-
-const (
-	// NameSortField represents a sorting by name.
-	NameSortField SortField = "name"
-	// CreatedSortField represents a sorting by creation date.
-	CreatedSortField SortField = "created"
-)
-
-// SortOrder represents a valid sort order.
-type SortOrder string
-
-const (
-	// AscendingOrder represents an ascending sorting order.
-	AscendingOrder SortOrder = "asc"
-	// DescendingOrder represents a descending sorting order.
-	DescendingOrder SortOrder = "desc"
-)
-
-// SortCriteria represents a sort criteria.
-type SortCriteria struct {
-	// Field is the field to sort by.
-	Field SortField
-	// Order is the order to sort on.
-	Order SortOrder
-}
-
 // indexes represent a pair of min and max indexes.
 type indexes struct {
 	min int
@@ -90,24 +56,7 @@ type page struct {
 	offset int
 }
 
-// GetSortCriteria returns the sorting criteria in the parameters of the given
-// request context. If the request doesn't contain information about the
-// sorting, GetSortCriteria returns nil.
-func GetSortCriteria(c *gin.Context) *SortCriteria {
-	sortField := c.DefaultQuery(sortFieldParamKey, "")
-	sortField = strings.ToLower(sortField)
-	if sortField == "" {
-		return nil
-	}
-
-	sortOrder := c.DefaultQuery(sortOrderParamKey, string(AscendingOrder))
-	sortOrder = strings.ToLower(sortOrder)
-
-	return &SortCriteria{
-		Field: SortField(sortField),
-		Order: SortOrder(sortOrder),
-	}
-}
+// TODO: Consdier handling according to the status code.
 
 // request performs a HTTP request to the given URL returns its response.
 func request[T Resource](url string) (response SwapiResponse[T], err error) {
@@ -209,15 +158,13 @@ func computeInitialPage(pageNumber, pageSize, apiPageSize int) page {
 // contain the value of search.
 func retrievePage[T Resource](
 	endpoint string,
-	pageNumber,
-	pageSize int,
-	search string,
+	params internalRequest.RequestParams,
 ) (
 	resp SwapiResponse[T],
 	err error,
 ) {
-	page := computeInitialPage(pageNumber, pageSize, swapiPageSize)
-	return retrievePageRec(SwapiResponse[T]{}, endpoint, search, pageSize, page.number, page.offset)
+	page := computeInitialPage(params.Page, params.PageSize, swapiPageSize)
+	return retrievePageRec(SwapiResponse[T]{}, endpoint, params.Search, params.PageSize, page.number, page.offset)
 }
 
 // retrieveAll returns all the resources in the given SWAPI endpoint. If search
@@ -258,15 +205,15 @@ func retrieveAll[T Resource](
 
 // SortResults sorts the given slice of results based on the given sort
 // criteria.
-func SortResults[T Resource](results []T, sortCriteria SortCriteria) error {
+func SortResults[T Resource](results []T, sortCriteria internalRequest.SortCriteria) error {
 	var lessFn func(i, j int) bool
 	switch sortCriteria.Field {
-	case NameSortField:
+	case internalRequest.NameSortField:
 		lessFn = func(i, j int) bool {
 			return results[i].GetName() < results[j].GetName()
 		}
 
-	case CreatedSortField:
+	case internalRequest.CreatedSortField:
 		lessFn = func(i, j int) bool {
 			return results[i].GetCreated().Before(results[j].GetCreated())
 		}
@@ -275,7 +222,7 @@ func SortResults[T Resource](results []T, sortCriteria SortCriteria) error {
 	}
 	sort.Slice(results, lessFn)
 
-	if sortCriteria.Order == DescendingOrder {
+	if sortCriteria.Order == internalRequest.DescendingOrder {
 		utils.ReverseSlice(results)
 	}
 	return nil
@@ -287,31 +234,28 @@ func SortResults[T Resource](results []T, sortCriteria SortCriteria) error {
 // will contain the value of search.
 func retrieveAllAndSort[T Resource](
 	endpoint string,
-	page,
-	pageSize int,
-	search string,
-	sortCriteria SortCriteria,
+	params internalRequest.RequestParams,
 ) (
 	resp SwapiResponse[T],
 	err error,
 ) {
-	resources, err := retrieveAll[T](endpoint, search)
+	resources, err := retrieveAll[T](endpoint, params.Search)
 	if err != nil {
 		return resp, err
 	}
 
-	if err = SortResults(resources.Results, sortCriteria); err != nil {
+	if err = SortResults(resources.Results, *params.SortCriteria); err != nil {
 		return resp, err
 	}
 
-	minIdx := (page - 1) * pageSize
+	minIdx := (params.Page - 1) * params.PageSize
 	if minIdx > len(resources.Results) {
 		return SwapiResponse[T]{
 			Count:   resources.Count,
 			Results: []T{},
 		}, nil
 	}
-	maxIdx := int(math.Min(float64(page*pageSize), float64(len(resources.Results))))
+	maxIdx := int(math.Min(float64(params.Page*params.PageSize), float64(len(resources.Results))))
 	resources.Results = resources.Results[minIdx:maxIdx]
 
 	return resources, nil
