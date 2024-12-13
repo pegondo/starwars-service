@@ -29,7 +29,7 @@ func (c *Client) RetrievePeople(opts requestOpts) (peopleResp Response[swapi.Per
 	}
 
 	if isStatusOk(resp.StatusCode) {
-		// If the response is a success response, return it.
+		// If it's a success response, return it.
 		var apiResp handler.Response[swapi.Person]
 		if err = json.Unmarshal(bodyBytes, &apiResp); err == nil {
 			return Response[swapi.Person]{

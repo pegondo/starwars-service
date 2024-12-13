@@ -29,7 +29,7 @@ func (c *Client) RetrievePlanets(opts requestOpts) (planetsResp Response[swapi.P
 	}
 
 	if isStatusOk(resp.StatusCode) {
-		// If the response is a success response, return it.
+		// If it's a success response, return it.
 		var apiResp handler.Response[swapi.Planet]
 		if err = json.Unmarshal(bodyBytes, &apiResp); err == nil {
 			return Response[swapi.Planet]{
