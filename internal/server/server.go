@@ -27,5 +27,5 @@ func Init() {
 
 // Run runs the router.
 func Run() {
-	router.Run(":6969")
+	router.Run()
 }

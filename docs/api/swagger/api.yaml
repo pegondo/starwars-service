@@ -7,7 +7,7 @@ externalDocs:
   description: Repository
   url: https://github.com/pegondo/starwars-service
 servers:
-  - url: https://localhost:6969
+  - url: https://localhost:8080
 tags:
   - name: people
     description: Information about the characters in the Star Wars universe.

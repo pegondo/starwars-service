@@ -54,7 +54,7 @@ docker compose -f docker/docker-compose.yaml build
 docker compose -f docker/docker-compose.yaml up
 ```
 
-No matter the method you used, the service will be running in port `6969`.
+No matter the method you used, the service will be running in port `8080`.
 
 ## Endpoints
 
