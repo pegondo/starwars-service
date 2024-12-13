@@ -1,3 +1,9 @@
+# Debug
 __debug_bin*
 
+# IDE
 .vscode
+
+# Binaries
+service
+service.exe
