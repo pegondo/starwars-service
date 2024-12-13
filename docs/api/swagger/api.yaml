@@ -1,0 +1,277 @@
+openapi: 3.0.3
+info:
+  title: Starwars service
+  description: A simple service to perform requests against SWAPI.
+  version: 1.0.0
+externalDocs:
+  description: Repository
+  url: https://github.com/pegondo/starwars-service
+servers:
+  - url: https://localhost:6969
+tags:
+  - name: people
+    description: Information about the characters in the Star Wars universe.
+    externalDocs:
+      description: SWAPI
+      url: https://swapi.dev/documentation#people
+  - name: planets
+    description: Information about the planets in the Star Wars universe.
+    externalDocs:
+      description: SWAPI
+      url: https://swapi.dev/documentation#planets
+paths:
+  /people:
+    get:
+      tags:
+        - people
+      summary: Request for Star Wars characters.
+      description: Request for information about the characters in the Star Wars universe.
+      parameters:
+        - in: query
+          name: page
+          description: the number of the page requested.
+          required: false
+          schema:
+            type: integer
+            example: 1
+        - in: query
+          name: pageSize
+          description: the size of page requested.
+          required: false
+          schema:
+            type: integer
+            example: 15
+        - in: query
+          name: search
+          description: a search condition for the character name.
+          required: false
+          schema:
+            type: string
+            example: sky
+        - in: query
+          name: sortField
+          description: the character field to sort by.
+          required: false
+          schema:
+            type: string
+            enum: [name, created]
+            example: name
+        - in: query
+          name: sortOrder
+          description: the order to sort the characters by. If sortField isn't set, this doesn't apply.
+          required: false
+          schema:
+            type: string
+            enum: [asc, desc]
+            example: asc
+      responses:
+        '200':
+          description: Successful operation containing all the characters available.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/People'          
+        '206':
+          description: Successful operation containing a subset of the characters available.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/People'          
+        '400':
+          description: Malformed request - invalid query parameters.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                INVALID_PAGE:
+                  $ref: '#/components/examples/InvalidPageError'
+                INVALID_PAGE_SIZE:
+                  $ref: '#/components/examples/InvalidPageSizeError'  
+                INVALID_SORT_CRITERIA:
+                  $ref: '#/components/examples/InvalidSortCriteriaError'
+        '500':
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'          
+            application/xml:
+              schema:
+                $ref: '#/components/examples/InternalServerError'
+  /planets:
+    get:
+      tags:
+        - planets
+      summary: Request for Star Wars planets.
+      description: Request for information about the planets in the Star Wars universe.
+      parameters:
+        - in: query
+          name: page
+          description: the number of the page requested.
+          required: false
+          schema:
+            type: integer
+            example: 1
+        - in: query
+          name: pageSize
+          description: the size of page requested.
+          required: false
+          schema:
+            type: integer
+            example: 15
+        - in: query
+          name: search
+          description: a search condition for the planet name.
+          required: false
+          schema:
+            type: string
+            example: Tatooine
+        - in: query
+          name: sortField
+          description: the planet field to sort by.
+          required: false
+          schema:
+            type: string
+            enum: [name, created]
+            example: name
+        - in: query
+          name: sortOrder
+          description: the order to sort the planet by. If sortField isn't set, this doesn't apply.
+          required: false
+          schema:
+            type: string
+            enum: [asc, desc]
+            example: asc
+      responses:
+        '200':
+          description: Successful operation containing all the planets available.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Planets'          
+        '206':
+          description: Successful operation containing a subset of the planets available.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Planets'          
+        '400':
+          description: Malformed request - invalid query parameters.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                INVALID_PAGE:
+                  $ref: '#/components/examples/InvalidPageError'
+                INVALID_PAGE_SIZE:
+                  $ref: '#/components/examples/InvalidPageSizeError'  
+                INVALID_SORT_CRITERIA:
+                  $ref: '#/components/examples/InvalidSortCriteriaError'
+        '500':
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'          
+            application/xml:
+              schema:
+                $ref: '#/components/examples/InternalServerError'
+
+components:
+  schemas:
+    People:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            required: [name, birth_year, height, mass, skin_color, url, created, edited]
+            properties:
+              name:
+                type: string
+              birth_year:
+                type: string
+              eye_color:
+                type: string
+              gender:
+                type: string
+                enum: [Male, Female, Unknown]
+              hair_color:
+                type: string
+              height:
+                type: string
+              mass:
+                type: string
+              skin_color:
+                type: string
+              url:
+                type: string
+              created:
+                type: string
+                format: date-time
+              edited:
+                type: string
+                format: date-time
+    Planets:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            required: [name, diameter, rotation_period, orbital_period, gravity, population, climate, terrain, surface_water, url, created, edited]
+            properties:
+              name:
+                type: string
+              diameter:
+                type: string
+              rotation_period:
+                type: string
+              orbital_period:
+                type: string
+              gravity:
+                type: string
+              population:
+                type: string
+              climate:
+                type: string
+              terrain:
+                type: string
+              surface_water:
+                type: string
+              url:
+                type: string
+              created:
+                type: string
+                format: date-time
+              edited:
+                type: string
+                format: date-time
+    ErrorResponse:
+      type: object
+      properties:
+        error_code:
+          type: string
+        error_message:
+          type: string
+  examples:
+    InvalidPageError:
+      value:
+        error_code: INVALID_PAGE
+        error_message: The page must be a number greater than 0.
+    InvalidPageSizeError:
+      value:
+        error_code: INVALID_PAGE_SIZE
+        error_message: The page size must be a number greater than 0.
+    InvalidSortCriteriaError:
+      value:
+        error_code: INVALID_SORT_CRITERIA
+        error_message: The sort criteria is invalid.
+    InternalServerError:
+      value:
+        error_code: INTERNAL_SERVER_ERROR
+        error_message: An internal server error occurred.
+
+
+
