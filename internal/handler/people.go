@@ -34,10 +34,7 @@ func RetrievePeople(c *gin.Context) {
 		return
 	}
 
-	statusCode := http.StatusOK
-	if areAllResources := people.Count == len(people.Results); !areAllResources {
-		statusCode = http.StatusPartialContent
-	}
+	statusCode := getStatusCode(people)
 	c.JSON(statusCode, Response[swapi.Person]{
 		Data: people.Results,
 	})

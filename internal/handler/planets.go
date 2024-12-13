@@ -34,10 +34,7 @@ func RetrievePlanets(c *gin.Context) {
 		return
 	}
 
-	statusCode := http.StatusOK
-	if areAllResources := planets.Count == len(planets.Results); !areAllResources {
-		statusCode = http.StatusPartialContent
-	}
+	statusCode := getStatusCode(planets)
 	c.JSON(statusCode, Response[swapi.Planet]{
 		Data: planets.Results,
 	})

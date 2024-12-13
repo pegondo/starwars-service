@@ -11,7 +11,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func buildRouter(handler gin.HandlerFunc) *gin.Engine {
+func buildReqIdRouter(handler gin.HandlerFunc) *gin.Engine {
 	r := gin.Default()
 	r.Use(request.RequestIdMiddleware())
 	r.GET("/", handler)
@@ -23,7 +23,7 @@ func TestRequestId(t *testing.T) {
 	handler := func(c *gin.Context) {
 		reqId = request.RequestId(c)
 	}
-	r := buildRouter(handler)
+	r := buildReqIdRouter(handler)
 
 	req, err := http.NewRequest("GET", "/", nil)
 	require.NoError(t, err)
