@@ -4,7 +4,7 @@ import "github.com/pegondo/starwars/service/ex/client"
 
 const (
 	// addr is the address to target.
-	addr = "http://localhost:8080"
+	addr = "http://localhost:6969"
 	// pageSizeStr is the standard page size for the resources to target.
 	pageSize = 15
 	// pageSizeStr is the standard page size for the resources to target in

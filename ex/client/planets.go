@@ -45,5 +45,5 @@ func (c *Client) RetrievePlanets(opts requestOpts) (planetsResp Response[swapi.P
 		}
 	}
 
-	return planetsResp, ErrInvalidResponseFormat
+	return planetsResp, err
 }

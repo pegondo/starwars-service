@@ -45,5 +45,5 @@ func (c *Client) RetrievePeople(opts requestOpts) (peopleResp Response[swapi.Per
 		}
 	}
 
-	return peopleResp, ErrInvalidResponseFormat
+	return peopleResp, err
 }

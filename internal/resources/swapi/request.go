@@ -56,8 +56,6 @@ type page struct {
 	offset int
 }
 
-// TODO: Consdier handling according to the status code.
-
 // request performs a HTTP request to the given URL returns its response.
 func request[T Resource](url string) (response SwapiResponse[T], err error) {
 	resp, err := http.Get(url)

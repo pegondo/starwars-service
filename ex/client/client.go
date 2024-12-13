@@ -1,7 +1,6 @@
 package client
 
 import (
-	goErrors "errors"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -9,10 +8,6 @@ import (
 	"github.com/pegondo/starwars/service/internal/handler"
 	"github.com/pegondo/starwars/service/internal/resources/swapi"
 )
-
-// ErrInvalidResponseFormat is the error returned when the response format is
-// invalid.
-var ErrInvalidResponseFormat = goErrors.New("invalid response format")
 
 // Client a HTTP client to call the endpoints of the server.
 type Client struct {
@@ -71,7 +66,6 @@ func NewRequestOpts(
 // buildUrl builds a URL to request the addr in c with the given endpoint and
 // options.
 func (c *Client) buildUrl(endpoint string, opts requestOpts) string {
-	// TODO: Consider using this library when building urls in the code.
 	reqUrl, _ := url.Parse(fmt.Sprintf("%s/%s", c.addr, endpoint))
 
 	query := url.Values{}
