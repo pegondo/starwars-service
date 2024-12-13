@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"testing"
 
-	"github.com/pegondo/starwars/service/internal/resources/swapi"
+	"github.com/pegondo/starwars-service/internal/resources/swapi"
 	"github.com/stretchr/testify/require"
 )
 

@@ -5,7 +5,7 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
-	"github.com/pegondo/starwars/service/internal/errors"
+	"github.com/pegondo/starwars-service/internal/errors"
 )
 
 const (

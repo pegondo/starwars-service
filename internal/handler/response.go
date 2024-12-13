@@ -3,7 +3,7 @@ package handler
 import (
 	"net/http"
 
-	"github.com/pegondo/starwars/service/internal/resources/swapi"
+	"github.com/pegondo/starwars-service/internal/resources/swapi"
 )
 
 // Response represents the response of a handler.

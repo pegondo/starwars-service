@@ -5,9 +5,9 @@ import (
 	"io"
 	"net/http"
 
-	"github.com/pegondo/starwars/service/internal/errors"
-	"github.com/pegondo/starwars/service/internal/handler"
-	"github.com/pegondo/starwars/service/internal/resources/swapi"
+	"github.com/pegondo/starwars-service/internal/errors"
+	"github.com/pegondo/starwars-service/internal/handler"
+	"github.com/pegondo/starwars-service/internal/resources/swapi"
 )
 
 // RetrievePeople calls the retrieve people endpoint from c.addr and returns its

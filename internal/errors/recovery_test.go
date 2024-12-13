@@ -7,7 +7,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/pegondo/starwars/service/internal/errors"
+	"github.com/pegondo/starwars-service/internal/errors"
 
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/require"

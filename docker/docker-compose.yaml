@@ -5,6 +5,6 @@ services:
     build:
       context: ..
       dockerfile: ./docker/Dockerfile
-    image: github.com/pegondo/starwars/service:latest
+    image: github.com/pegondo/starwars-service:latest
     ports:
       - "6969:6969"

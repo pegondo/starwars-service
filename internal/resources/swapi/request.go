@@ -10,9 +10,9 @@ import (
 	"sort"
 	"time"
 
-	internalRequest "github.com/pegondo/starwars/service/internal/request"
+	internalRequest "github.com/pegondo/starwars-service/internal/request"
 
-	"github.com/pegondo/starwars/service/internal/utils"
+	"github.com/pegondo/starwars-service/internal/utils"
 )
 
 // Source: https://swapi.dev/documentation

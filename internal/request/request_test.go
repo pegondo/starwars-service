@@ -7,8 +7,8 @@ import (
 	"testing"
 
 	"github.com/gin-gonic/gin"
-	"github.com/pegondo/starwars/service/internal/errors"
-	"github.com/pegondo/starwars/service/internal/request"
+	"github.com/pegondo/starwars-service/internal/errors"
+	"github.com/pegondo/starwars-service/internal/request"
 	"github.com/stretchr/testify/require"
 )
 

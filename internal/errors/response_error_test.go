@@ -3,7 +3,7 @@ package errors_test
 import (
 	"testing"
 
-	"github.com/pegondo/starwars/service/internal/errors"
+	"github.com/pegondo/starwars-service/internal/errors"
 	"github.com/stretchr/testify/require"
 )
 

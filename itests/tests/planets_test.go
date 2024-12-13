@@ -7,10 +7,10 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/pegondo/starwars/service/ex/client"
-	"github.com/pegondo/starwars/service/internal/errors"
-	"github.com/pegondo/starwars/service/internal/request"
-	"github.com/pegondo/starwars/service/internal/resources/swapi"
+	"github.com/pegondo/starwars-service/ex/client"
+	"github.com/pegondo/starwars-service/internal/errors"
+	"github.com/pegondo/starwars-service/internal/request"
+	"github.com/pegondo/starwars-service/internal/resources/swapi"
 	"github.com/stretchr/testify/require"
 )
 

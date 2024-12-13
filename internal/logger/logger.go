@@ -1,7 +1,7 @@
 package logger
 
 import (
-	"github.com/pegondo/starwars/service/internal/request"
+	"github.com/pegondo/starwars-service/internal/request"
 
 	"github.com/gin-gonic/gin"
 	"github.com/rs/zerolog"

@@ -5,7 +5,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/pegondo/starwars/service/internal/request"
+	"github.com/pegondo/starwars-service/internal/request"
 
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/require"

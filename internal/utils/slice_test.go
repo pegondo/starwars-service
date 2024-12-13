@@ -3,7 +3,7 @@ package utils_test
 import (
 	"testing"
 
-	"github.com/pegondo/starwars/service/internal/utils"
+	"github.com/pegondo/starwars-service/internal/utils"
 
 	"github.com/stretchr/testify/require"
 )

@@ -1,6 +1,6 @@
 package tests
 
-import "github.com/pegondo/starwars/service/ex/client"
+import "github.com/pegondo/starwars-service/ex/client"
 
 const (
 	// addr is the address to target.

@@ -4,7 +4,7 @@ import (
 	"testing"
 	"time"
 
-	internalRequest "github.com/pegondo/starwars/service/internal/request"
+	internalRequest "github.com/pegondo/starwars-service/internal/request"
 	"github.com/stretchr/testify/require"
 )
 

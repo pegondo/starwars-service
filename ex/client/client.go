@@ -5,8 +5,8 @@ import (
 	"net/http"
 	"net/url"
 
-	"github.com/pegondo/starwars/service/internal/handler"
-	"github.com/pegondo/starwars/service/internal/resources/swapi"
+	"github.com/pegondo/starwars-service/internal/handler"
+	"github.com/pegondo/starwars-service/internal/resources/swapi"
 )
 
 // Client a HTTP client to call the endpoints of the server.

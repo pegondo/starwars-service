@@ -6,7 +6,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/pegondo/starwars/service/internal/logger"
+	"github.com/pegondo/starwars-service/internal/logger"
 
 	"github.com/gin-gonic/gin"
 	"github.com/rs/zerolog"

@@ -3,7 +3,7 @@ package swapi
 import (
 	"time"
 
-	internalRequest "github.com/pegondo/starwars/service/internal/request"
+	internalRequest "github.com/pegondo/starwars-service/internal/request"
 )
 
 // planetsEndpoint is the endpoint to request for planets in SWAPI.

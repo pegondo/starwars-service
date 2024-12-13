@@ -1,6 +1,6 @@
-module github.com/pegondo/starwars/service
+module github.com/pegondo/starwars-service
 
-replace github.com/pegondo/starwars/service/ex => ./ex
+replace github.com/pegondo/starwars-service/ex => ./ex
 
 go 1.23.4
 
