@@ -44,9 +44,6 @@ type Person struct {
 	Mass string `json:"mass"`
 	// SkinColor is the color of the person.
 	SkinColor string `json:"skin_color"`
-	// Homeworld is the URL of a planet resource, a planet that this person was
-	// born on or inhabits.
-	Homeword string `json:"homeworld"`
 	// Url is the URL to the resource of this person.
 	Url string `json:"url"`
 	// Created is the time when the resource of this person was created.
