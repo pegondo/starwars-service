@@ -19,8 +19,9 @@ func Init() {
 
 	router.Use(errors.RecoveryMiddleware(), request.RequestIdMiddleware(), logger.Middleware())
 
-	router.GET(handler.PeopleEndpoint, handler.RetrievePeople)
-	router.GET(handler.PlanetEndpoint, handler.RetrievePlanets)
+	api := router.Group("/api")
+	api.GET(handler.PeopleEndpoint, handler.RetrievePeople)
+	api.GET(handler.PlanetEndpoint, handler.RetrievePlanets)
 
 	zerolog.TimeFieldFormat = zerolog.TimeFormatUnix
 }
