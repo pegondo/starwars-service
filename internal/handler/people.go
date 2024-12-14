@@ -36,6 +36,7 @@ func RetrievePeople(c *gin.Context) {
 
 	statusCode := getStatusCode(people)
 	c.JSON(statusCode, Response[swapi.Person]{
-		Data: people.Results,
+		Data:  people.Results,
+		Count: people.Count,
 	})
 }

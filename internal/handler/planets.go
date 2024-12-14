@@ -36,6 +36,7 @@ func RetrievePlanets(c *gin.Context) {
 
 	statusCode := getStatusCode(planets)
 	c.JSON(statusCode, Response[swapi.Planet]{
-		Data: planets.Results,
+		Data:  planets.Results,
+		Count: planets.Count,
 	})
 }

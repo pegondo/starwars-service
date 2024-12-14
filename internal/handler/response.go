@@ -10,6 +10,8 @@ import (
 type Response[T swapi.Resource] struct {
 	// Data is the resource data.
 	Data []T `json:"data"`
+	// Count is the number of elements in the
+	Count int `json:"count"`
 }
 
 // getStatusCode returns the HTTP status code to return regarding the number of
