@@ -53,7 +53,7 @@ To run the service in a docker container:
 1. Build the docker image:
 
 ```bash
-docker compose -f docker/docker-compose.yaml build
+docker compose -f docker/docker-compose.yaml --env-file .env build
 ```
 
 2. Start the container:
