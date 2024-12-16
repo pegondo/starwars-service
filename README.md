@@ -83,3 +83,35 @@ To run the integration tests:
 cd itests
 go test ./...
 ```
+
+## The SWAPI mock
+
+This repository includes a simple service that mocks [the SWAPI
+API](https://swapi.dev/) in the `/swapi_mock` folder. This mock is included because SWAPI is not guaranteed
+to be up as it's no longer maintained, as highlighted in [their repository](https://github.com/phalt/swapi).
+
+The SWAPI mocks the people and planets collections from the original SWAPI with pseudo-random data.
+
+### Run the mock
+
+To run the mock:
+
+1. Navigate to the mock file:
+
+```bash
+cd swapi_mock
+```
+
+2. Install the dependencies:
+
+```bash
+npm i
+```
+
+3. Run the service:
+
+```bash
+npm run start
+```
+
+This will serve the people and planets resources to `http://localhost:3000/`.

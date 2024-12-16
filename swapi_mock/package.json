@@ -1,0 +1,13 @@
+{
+  "name": "swapi-mock",
+  "version": "1.0.0",
+  "description": "A simple mock for SWAPI (https://swapi.dev/)",
+  "main": "index.js",
+  "scripts": {
+    "start": "node server.mjs"
+  },
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.21.2"
+  }
+}
