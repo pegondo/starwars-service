@@ -6,6 +6,7 @@ import (
 	"github.com/pegondo/starwars-service/internal/logger"
 	"github.com/pegondo/starwars-service/internal/request"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/rs/zerolog"
 )
@@ -17,7 +18,7 @@ var router *gin.Engine
 func Init() {
 	router = gin.Default()
 
-	router.Use(errors.RecoveryMiddleware(), request.RequestIdMiddleware(), logger.Middleware())
+	router.Use(cors.Default(), errors.RecoveryMiddleware(), request.RequestIdMiddleware(), logger.Middleware())
 
 	api := router.Group("/api")
 	api.GET(handler.PeopleEndpoint, handler.RetrievePeople)
