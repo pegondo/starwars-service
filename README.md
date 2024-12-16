@@ -20,7 +20,15 @@ git clone https://github.com/pegondo/starwars-service.git
 cd starwars-service
 ```
 
-Then, you have two options to run the service: as a go binary or as in a docker container.
+Then, you have three options to run the service: as a go binary or as in a docker container.
+
+### Run it locally
+
+You can run the service locally with:
+
+```bash
+go run main.go
+```
 
 ### Run as a binary
 
