@@ -259,7 +259,7 @@ func TestGetParams(t *testing.T) {
 	}{
 		// Page number.
 		{
-			name:     "emtpy_page",
+			name:     "empty_page",
 			page:     "",
 			pageSize: "1",
 			params:   request.RequestParams{},
@@ -298,7 +298,7 @@ func TestGetParams(t *testing.T) {
 		},
 		// Page size.
 		{
-			name:     "emtpy_page_size",
+			name:     "empty_page_size",
 			page:     "1",
 			pageSize: "",
 			params:   request.RequestParams{},
