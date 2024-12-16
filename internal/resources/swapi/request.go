@@ -5,9 +5,9 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"os"
 	"math"
 	"net/http"
+	"os"
 	"sort"
 	"time"
 
@@ -34,7 +34,6 @@ func getSwapiBaseUrl() string {
 
 // swapiBaseUrl is the base URL of the SWAPI.
 var swapiBaseUrl = getSwapiBaseUrl()
-
 
 // ErrInvalidSortField is the error returned when the sort field in SortCriteria
 // is invalid.
@@ -141,11 +140,11 @@ func retrievePageRec[T Resource](
 		}, nil
 	}
 
-	remainingResources = int(math.Min(float64(remainingResources), float64(swapiResp.Count-pageNumber*swapiPageSize)))
-
 	idxs := computePageIdxs(offset, remainingResources, swapiPageSize)
 	numElementsAdded := idxs.max - idxs.min
 	swapiResp.Results = append(resource.Results, swapiResp.Results[idxs.min:idxs.max]...)
+
+	remainingResources = int(math.Min(float64(remainingResources), float64(swapiResp.Count)))
 
 	return retrievePageRec(swapiResp, endpoint, search, remainingResources-numElementsAdded, pageNumber+1, 0)
 }
