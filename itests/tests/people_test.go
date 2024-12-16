@@ -102,7 +102,7 @@ func TestRetrievePeople_Page2_PageSizeTooBig(t *testing.T) {
 }
 
 func TestRetrievePeople_Page1_Search(t *testing.T) {
-	search := "sky"
+	search := "a"
 	resp, err := c.RetrievePeople(client.NewRequestOpts("1", pageSizeStr, search, "", ""))
 
 	require.NoError(t, err)

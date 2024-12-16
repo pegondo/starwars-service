@@ -20,6 +20,9 @@ FROM alpine:latest
 
 WORKDIR /app
 
+ARG SWAPI_BASE_URL
+ENV SWAPI_BASE_URL=$SWAPI_BASE_URL
+
 # Copy the already built binary.
 COPY --from=builder /go/src/github.com/pegondo/starwars-service .
 

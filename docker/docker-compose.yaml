@@ -1,4 +1,4 @@
-version: '3.8'
+version: "3.8"
 
 services:
   service:
@@ -6,5 +6,7 @@ services:
       context: ..
       dockerfile: ./docker/Dockerfile
     image: github.com/pegondo/starwars-service:latest
+    environment:
+      - SWAPI_BASE_URL=${SWAPI_BASE_URL}
     ports:
       - "8080:8080"

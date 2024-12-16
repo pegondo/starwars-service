@@ -5,23 +5,36 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"os"
 	"math"
 	"net/http"
 	"sort"
 	"time"
 
-	internalRequest "github.com/pegondo/starwars-service/internal/request"
+	"github.com/lpernett/godotenv"
 
+	internalRequest "github.com/pegondo/starwars-service/internal/request"
 	"github.com/pegondo/starwars-service/internal/utils"
 )
 
 // Source: https://swapi.dev/documentation
 const (
-	// swapiBaseUrl is the base URL of the SWAPI.
-	swapiBaseUrl = "https://swapi.dev/api"
 	// swapiPageSize is the SWAPI fixed page size.
 	swapiPageSize = 10
 )
+
+// getSwapiBaseUrl returns the SWAPI base URL.
+func getSwapiBaseUrl() string {
+	godotenv.Load()
+	if swapiBaseUrlEnv, exists := os.LookupEnv("SWAPI_BASE_URL"); exists {
+		return swapiBaseUrlEnv
+	}
+	return "https://swapi.dev/api"
+}
+
+// swapiBaseUrl is the base URL of the SWAPI.
+var swapiBaseUrl = getSwapiBaseUrl()
+
 
 // ErrInvalidSortField is the error returned when the sort field in SortCriteria
 // is invalid.
@@ -40,7 +53,7 @@ type SwapiResponse[T Resource] struct {
 	Count int `json:"count"`
 	// Next is the URL for the next page of the resource.
 	Next *string `json:"next"`
-	// Resoults are the paginated elements in the collection.
+	// Results are the paginated elements in the collection.
 	Results []T `json:"results"`
 }
 
@@ -128,7 +141,7 @@ func retrievePageRec[T Resource](
 		}, nil
 	}
 
-	remainingResources = int(math.Min(float64(remainingResources), float64(swapiResp.Count)))
+	remainingResources = int(math.Min(float64(remainingResources), float64(swapiResp.Count-pageNumber*swapiPageSize)))
 
 	idxs := computePageIdxs(offset, remainingResources, swapiPageSize)
 	numElementsAdded := idxs.max - idxs.min

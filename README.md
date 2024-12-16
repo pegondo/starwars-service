@@ -51,7 +51,8 @@ docker compose -f docker/docker-compose.yaml build
 2. Start the container:
 
 ```bash
-docker compose -f docker/docker-compose.yaml up
+docker compose -f docker/docker-compose.yaml --env-file .env up
+# If preferred, you can omit the `--env-file` path and add the environment variables manually with the `-e` tag.
 ```
 
 No matter the method you used, the service will be running in port `8080`.
@@ -115,3 +116,5 @@ npm run start
 ```
 
 This will serve the people and planets resources to `http://localhost:3000/`.
+
+> **Note**: For the service to work with the mock you have to modify the environment variable SWAPI_BASE_URL to point to `http://<your-ip>:3000`.

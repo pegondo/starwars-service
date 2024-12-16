@@ -7,7 +7,7 @@ replace github.com/pegondo/starwars-service => ..
 replace github.com/pegondo/starwars-service/ex => ../ex
 
 require (
-	github.com/pegondo/starwars-service v0.0.0-00010101000000-000000000000 // indirect
+	github.com/pegondo/starwars-service v0.0.0-00010101000000-000000000000
 	github.com/pegondo/starwars-service/ex v0.0.0-00010101000000-000000000000
 )
 
@@ -30,6 +30,7 @@ require (
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/klauspost/cpuid/v2 v2.2.9 // indirect
 	github.com/leodido/go-urn v1.4.0 // indirect
+	github.com/lpernett/godotenv v0.0.0-20230527005122-0de1d4c5ef5e // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
